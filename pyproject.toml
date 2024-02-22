@@ -1,3 +1,11 @@
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+python_classes="*Tests"
+python_files=["*Tests.py"]
+pythonpath = [
+    "src"
+]
+testpaths=["tests"]
