@@ -1,7 +1,46 @@
 import pandas as pd
+from typing import List
 
 
 class PointsTableSimulator:
+
+    """
+    PointsTableSimulator
+
+    A class for simulating and calculating points table for a tournament based on provided schedule and points system.
+
+    Args:
+        tournament_schedule (pd.DataFrame): DataFrame containing the schedule of the tournament matches.
+        points_for_a_win (int): Points awarded for a win.
+        points_for_a_no_result (int, optional): Points awarded for a match with no result. Default is 1.
+        points_for_a_draw (int, optional): Points awarded for a draw. Default is 1.
+        tournament_schedule_away_team_column_name (str, optional): Name of the column in the schedule DataFrame
+            containing the away team names. Default is "away".
+        tournament_schedule_home_team_column_name (str, optional): Name of the column in the schedule DataFrame
+            containing the home team names. Default is "home".
+        tournament_schedule_match_number_column_name (str, optional): Name of the column in the schedule DataFrame
+            containing the match numbers. Default is "match_number".
+        tournament_schedule_winning_team_column_name (str, optional): Name of the column in the schedule DataFrame
+            containing the winning team names. Default is "winner".
+
+    Attributes:
+        tournament_schedule (pd.DataFrame): DataFrame containing the schedule of the tournament matches.
+        points_for_a_win (int): Points awarded for a win.
+        points_for_a_no_result (int): Points awarded for a match with no result.
+        points_for_a_draw (int): Points awarded for a draw.
+        tournament_schedule_away_team_column_name (str): Name of the column in the schedule DataFrame
+            containing the away team names.
+        tournament_schedule_home_team_column_name (str): Name of the column in the schedule DataFrame
+            containing the home team names.
+        tournament_schedule_match_number_column_name (str): Name of the column in the schedule DataFrame
+            containing the match numbers.
+        tournament_schedule_winning_team_column_name (str): Name of the column in the schedule DataFrame
+            containing the winning team names.
+
+    Methods:
+        current_points_table(): Calculates the current points table based on the provided tournament schedule.
+
+    """
 
     def __init__(
         self,
@@ -50,6 +89,96 @@ class PointsTableSimulator:
         self.tournament_schedule_match_number_column_name: str = tournament_schedule_match_number_column_name
         self.tournament_schedule_winning_team_column_name: str = tournament_schedule_winning_team_column_name
         self._validate_schedule_dataframe_columns()
+
+    @property
+    def current_points_table(self) -> pd.DataFrame:
+        """
+        Calculates the current points table based on the provided tournament schedule.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the current points table with the following columns:
+                - 'team': The name of the team.
+                - 'matches_played': The total number of matches played by the team.
+                - 'matches_won': The total number of matches won by the team.
+                - 'matches_lost': The total number of matches lost by the team.
+                - 'matches_drawn': The total number of matches drawn by the team.
+                - 'matches_with_no_result': The total number of matches with no result for the team.
+                - 'remaining_matches': The total number of remaining matches for the team.
+                - 'points': The total points earned by the team based on wins, draws, and no results.
+        """
+
+        team_points_data: List = []
+
+        teams: set = set(self.tournament_schedule[self.tournament_schedule_away_team_column_name].unique()).union(
+            set(self.tournament_schedule[self.tournament_schedule_home_team_column_name].unique())
+        )
+
+        for team in teams:
+            matches_played: int = len(self.tournament_schedule[
+                (
+                    (self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
+                    (self.tournament_schedule[self.tournament_schedule_home_team_column_name] == team)
+                ) &
+                (
+                    (self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") != "")
+                )
+            ])
+
+            matches_won: int = len(self.tournament_schedule[
+                (self.tournament_schedule[self.tournament_schedule_winning_team_column_name] == team)
+            ])
+
+            matches_lost: int = len(self.tournament_schedule[
+                (
+                    (self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
+                    (self.tournament_schedule[self.tournament_schedule_home_team_column_name] == team)
+                ) &
+                (
+                    (self.tournament_schedule[self.tournament_schedule_winning_team_column_name] != team) &
+                    (self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") != "")
+                )
+            ])
+
+            matches_drawn: int = len(self.tournament_schedule[
+                ((self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
+                (self.tournament_schedule[self.tournament_schedule_home_team_column_name] == team)) &
+                (self.tournament_schedule[self.tournament_schedule_winning_team_column_name] == "Draw")
+            ])
+
+            matches_with_no_result: int = len(self.tournament_schedule[
+                ((self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
+                (self.tournament_schedule[self.tournament_schedule_home_team_column_name] == team)) &
+                (self.tournament_schedule[self.tournament_schedule_winning_team_column_name] == "No Result")
+            ])
+
+            remaining_matches: int = len(self.tournament_schedule[
+                (
+                    (self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
+                    (self.tournament_schedule[self.tournament_schedule_home_team_column_name] == team)
+                ) &
+                (
+                    (self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") == "")
+                )
+            ])
+
+            points: int = (matches_won * self.points_for_a_win) + (matches_drawn * self.points_for_a_draw) + (matches_with_no_result * self.points_for_a_no_result)
+
+            team_points_data.append({
+                "team": team,
+                "matches_played": matches_played,
+                "matches_won": matches_won,
+                "matches_lost": matches_lost,
+                "matches_drawn": matches_drawn,
+                "matches_with_no_result": matches_with_no_result,
+                "remaining_matches": remaining_matches,
+                "points": points
+            })
+
+        current_points_table = pd.DataFrame(team_points_data)
+        current_points_table.sort_values(by="points", ascending=False, inplace=True)
+        current_points_table.reset_index(drop=True, inplace=True)
+
+        return current_points_table
 
     @staticmethod
     def _validate_input_types(

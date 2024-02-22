@@ -57,3 +57,15 @@ class TestPointsTableSimulator(unittest.TestCase):
                 }),
                 points_for_a_win=3
             )
+
+    def test_current_points_table(self):
+        simulator = PointsTableSimulator(self.tournament_schedule, 3)
+        current_table = simulator.current_points_table
+        
+        self.assertIsInstance(current_table, pd.DataFrame)
+        
+        expected_columns = ['team', 'matches_played', 'matches_won', 'matches_lost', 'matches_drawn', 'matches_with_no_result', 'remaining_matches', 'points']
+        self.assertListEqual(list(current_table.columns), expected_columns)
+        
+        self.assertEqual(current_table.loc[current_table['team'] == 'Team A', 'points'].iloc[0], 3)  # TeamA won 1 match
+        self.assertEqual(current_table.loc[current_table['team'] == 'Team B', 'points'].iloc[0], 0)  # TeamB drew 1 match
