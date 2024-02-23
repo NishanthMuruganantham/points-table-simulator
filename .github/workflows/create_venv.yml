@@ -28,4 +28,4 @@ jobs:
             - 
                 name: Analysing the code with pylint
                 run: |
-                    venv/bin/python -m pylint $(git ls-files '*.py')
+                    venv/bin/python -m pylint $(git ls-files 'src/*.py')
