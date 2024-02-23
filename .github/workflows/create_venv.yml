@@ -19,7 +19,7 @@ jobs:
                     python-version: 3.9
             -
                 name: creating the virtual environment
-                run: source ./create_venv.sh
+                run: bash create_venv.sh
             -
                 name: Install dependencies
                 run: |
