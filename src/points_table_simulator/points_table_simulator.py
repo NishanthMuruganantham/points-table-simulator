@@ -1,8 +1,10 @@
-import pandas as pd
+# pylint: disable = missing-module-docstring
+
 from typing import List
+import pandas as pd
 
 
-class PointsTableSimulator:
+class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
     """
     PointsTableSimulator
@@ -42,7 +44,7 @@ class PointsTableSimulator:
 
     """
 
-    def __init__(
+    def __init__(       # pylint: disable = too-many-arguments
         self,
         tournament_schedule: pd.DataFrame,
         points_for_a_win: int,
@@ -75,10 +77,10 @@ class PointsTableSimulator:
             points_for_a_win,
             points_for_a_no_result,
             points_for_a_draw,
-            tournament_schedule_away_team_column_name,
-            tournament_schedule_home_team_column_name,
-            tournament_schedule_match_number_column_name,
-            tournament_schedule_winning_team_column_name
+            tournament_schedule_away_team_column_name=tournament_schedule_away_team_column_name,
+            tournament_schedule_home_team_column_name=tournament_schedule_home_team_column_name,
+            tournament_schedule_match_number_column_name=tournament_schedule_match_number_column_name,
+            tournament_schedule_winning_team_column_name=tournament_schedule_winning_team_column_name
         )
         self.tournament_schedule: pd.DataFrame = tournament_schedule
         self.points_for_a_draw: int = points_for_a_draw
@@ -161,7 +163,8 @@ class PointsTableSimulator:
                 )
             ])
 
-            points: int = (matches_won * self.points_for_a_win) + (matches_drawn * self.points_for_a_draw) + (matches_with_no_result * self.points_for_a_no_result)
+            points: int = (matches_won * self.points_for_a_win) + (matches_drawn * self.points_for_a_draw) + \
+                (matches_with_no_result * self.points_for_a_no_result)
 
             team_points_data.append({
                 "team": team,
@@ -186,10 +189,7 @@ class PointsTableSimulator:
         points_for_a_win: int,
         points_for_a_no_result: int,
         points_for_a_draw: int,
-        tournament_schedule_away_team_column_name: str,
-        tournament_schedule_home_team_column_name: str,
-        tournament_schedule_match_number_column_name: str,
-        tournament_schedule_winning_team_column_name: str
+        **kwargs
     ):
         """
         Validates the types of input arguments.
@@ -219,14 +219,9 @@ class PointsTableSimulator:
             raise TypeError("points_for_a_no_result must be an integer")
         if not isinstance(points_for_a_draw, int):
             raise TypeError("points_for_a_draw must be an integer")
-        if not isinstance(tournament_schedule_away_team_column_name, str):
-            raise TypeError("tournament_schedule_away_team_column_name must be a string")
-        if not isinstance(tournament_schedule_home_team_column_name, str):
-            raise TypeError("tournament_schedule_home_team_column_name must be a string")
-        if not isinstance(tournament_schedule_match_number_column_name, str):
-            raise TypeError("tournament_schedule_match_number_column_name must be a string")
-        if not isinstance(tournament_schedule_winning_team_column_name, str):
-            raise TypeError("tournament_schedule_winning_team_column_name must be a string")
+        for key, value in kwargs.items():
+            if not isinstance(value, str):
+                raise TypeError(f"{key} must be a string")
 
     def _validate_schedule_dataframe_columns(self):
         """
@@ -238,17 +233,21 @@ class PointsTableSimulator:
         schedule_dataframe_columns = self.tournament_schedule.columns
         if self.tournament_schedule_away_team_column_name not in schedule_dataframe_columns:
             raise ValueError(
-                f"tournament_schedule_away_team_column_name '{self.tournament_schedule_away_team_column_name}' is not found in tournament_schedule columns"
+                f"tournament_schedule_away_team_column_name '{self.tournament_schedule_away_team_column_name}' \
+                    is not found in tournament_schedule columns"
             )
         if self.tournament_schedule_home_team_column_name not in schedule_dataframe_columns:
             raise ValueError(
-                f"tournament_schedule_home_team_column_name '{self.tournament_schedule_home_team_column_name}' is not found in tournament_schedule columns"
+                f"tournament_schedule_home_team_column_name '{self.tournament_schedule_home_team_column_name}' \
+                    is not found in tournament_schedule columns"
             )
         if self.tournament_schedule_match_number_column_name not in schedule_dataframe_columns:
             raise ValueError(
-                f"tournament_schedule_match_number_column_name '{self.tournament_schedule_match_number_column_name}' is not found in tournament_schedule columns"
+                f"tournament_schedule_match_number_column_name '{self.tournament_schedule_match_number_column_name}' \
+                    is not found in tournament_schedule columns"
             )
         if self.tournament_schedule_winning_team_column_name not in schedule_dataframe_columns:
             raise ValueError(
-                f"tournament_schedule_winning_team_column_name '{self.tournament_schedule_winning_team_column_name}' is not found in tournament_schedule columns"
+                f"tournament_schedule_winning_team_column_name '{self.tournament_schedule_winning_team_column_name}' \
+                    is not found in tournament_schedule columns"
             )
