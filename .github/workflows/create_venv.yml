@@ -26,9 +26,6 @@ jobs:
             - create_venv
         steps:
             -
-                name: Activating virtual environment
-                run: source ./enable_venv.sh
-            -
                 name: Install dependencies
                 run: |
                     python -m pip install --upgrade pip
