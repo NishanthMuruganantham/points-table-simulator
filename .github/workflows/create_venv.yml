@@ -22,11 +22,12 @@ jobs:
                 run: source ./create_venv.sh
     quality_checks:
         runs-on: ubuntu-latest
-        needs: create_venv
+        needs: 
+            - create_venv
         steps:
             -
                 name: Activating virtual environment
-                run: source ./venv/bin/activate
+                run: source ./enable_venv.sh
             -
                 name: Install dependencies
                 run: |
