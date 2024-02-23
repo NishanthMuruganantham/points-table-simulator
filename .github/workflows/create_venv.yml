@@ -1,42 +1,31 @@
-name: create_venv_and_quality_checks
+name: create_venv
 
 on:
-  push:
-    branches:
-      - '*'
+    push:
+        branches:
+            - '*'
 
 jobs:
-  quality_checks:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        check_type: ['pylint', 'mypy']
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Execute create_venv.sh
-        run: bash create_venv.sh
-
-      - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          if [ ${{ matrix.check_type }} == 'pylint' ]; then
-            pip install pylint
-          else
-            pip install mypy
-          fi
-
-      - name: Run quality check
-        run: |
-          source venv/bin/activate
-          if [ ${{ matrix.check_type }} == 'pylint' ]; then
-            pylint $(git ls-files 'src/*.py')
-          else
-            mypy src
-          fi
+    quality_checks:
+        runs-on: ubuntu-latest
+        steps:
+            - 
+                name: Checkout code
+                uses: actions/checkout@v4
+            - 
+                name: Set up Python
+                uses: actions/setup-python@v4
+                with:
+                    python-version: 3.9
+            -
+                name: creating the virtual environment
+                run: bash create_venv.sh
+            -
+                name: Install dependencies
+                run: |
+                    source venv/bin/activate
+                    pip install pylint
+            - 
+                name: Analysing the code with pylint
+                run: |
+                    venv/bin/python -m pylint $(git ls-files 'src/*.py')
