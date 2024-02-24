@@ -8,6 +8,9 @@ on:
 jobs:
     quality_checks:
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                check_type: ['pylint_check', 'imports_check']
         steps:
             - 
                 name: Checkout code
@@ -24,8 +27,16 @@ jobs:
                 name: Install dependencies
                 run: |
                     source venv/bin/activate
-                    pip install pylint
+                    if [ ${{ matrix.check_type }} == 'pylint_check' ]; then
+                        pip install pylint
+                    else
+                        pip install isort
+                    fi
             - 
-                name: Analysing the code with pylint
+                name: Run quality checks
                 run: |
-                    venv/bin/python -m pylint $(git ls-files 'src/*.py')
+                    if [ "${{ matrix.check_type }}" == 'pylint_check' ]; then
+                        venv/bin/python -m pylint $(git ls-files 'src/*.py')
+                    else
+                        venv/bin/python -m isort --check $(git ls-files 'src/*.py')
+                    fi
