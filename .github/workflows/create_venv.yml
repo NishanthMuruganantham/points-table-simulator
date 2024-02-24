@@ -6,7 +6,7 @@ on:
             - '*'
 
 jobs:
-    create_venv:
+    quality_checks:
         runs-on: ubuntu-latest
         steps:
             - 
@@ -19,4 +19,13 @@ jobs:
                     python-version: 3.9
             -
                 name: creating the virtual environment
-                run: source ./create_venv.sh
+                run: bash create_venv.sh
+            -
+                name: Install dependencies
+                run: |
+                    source venv/bin/activate
+                    pip install pylint
+            - 
+                name: Analysing the code with pylint
+                run: |
+                    venv/bin/python -m pylint $(git ls-files 'src/*.py')
