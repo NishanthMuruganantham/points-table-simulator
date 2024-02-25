@@ -34,9 +34,4 @@ jobs:
                     fi
             - 
                 name: Run quality checks
-                run: |
-                    if [ "${{ matrix.check_type }}" == 'pylint_check' ]; then
-                        venv/bin/python -m pylint $(git ls-files 'src/*.py')
-                    else
-                        venv/bin/python -m isort --check $(git ls-files 'src/*.py')
-                    fi
+                run: bash ./scripts/quality_checks.sh ${{ matrix.check_type }}
