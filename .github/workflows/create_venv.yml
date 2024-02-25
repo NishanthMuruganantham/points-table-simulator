@@ -34,4 +34,4 @@ jobs:
                     fi
             - 
                 name: Run quality checks
-                run: bash ./scripts/quality_checks.sh ${{ matrix.check_type }}
+                run: bash /scripts/quality_checks.sh ${{ matrix.check_type }}
