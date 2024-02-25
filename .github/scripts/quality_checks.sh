@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source venv/bin/activate
 if [ "$1" == 'pylint_check' ]; then
     venv/bin/python -m pylint $(git ls-files 'src/*.py')
 elif [ "$1" == 'pyright_check' ]; then
