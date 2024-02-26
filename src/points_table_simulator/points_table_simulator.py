@@ -3,6 +3,7 @@
 import itertools
 from typing import List, Tuple
 import pandas as pd
+from points_table_simulator.exceptions import NoQualifyingScenariosError
 
 
 class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
@@ -223,6 +224,9 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                 print("\n")
         """
 
+        self._validate_the_inputs_for_simulate_qualification_scenarios(
+            team_name, top_x_position_in_the_table, desired_number_of_scenarios
+        )
         list_of_points_tables_for_qualification_scenarios = []
         list_of_remaining_match_result_for_qualification_scenarios = []
 
@@ -253,6 +257,11 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
             if len(list_of_points_tables_for_qualification_scenarios) >= desired_number_of_scenarios:
                 break
+
+        if not list_of_points_tables_for_qualification_scenarios:
+            raise NoQualifyingScenariosError(
+                f"No qualifying scenarios found for the team '{team_name}' in the top '{top_x_position_in_the_table}' positions."
+            )
 
         return list_of_points_tables_for_qualification_scenarios, list_of_remaining_match_result_for_qualification_scenarios
 
@@ -342,4 +351,24 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             raise ValueError(
                 f"tournament_schedule_winning_team_column_name '{self.tournament_schedule_winning_team_column_name}' \
                     is not found in tournament_schedule columns"
+            )
+
+    def _validate_the_inputs_for_simulate_qualification_scenarios(
+        self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int
+    ):
+        if not isinstance(team_name, str):
+            raise TypeError("'team_name' must be type 'str'")
+        if not isinstance(top_x_position_in_the_table, int):
+            raise TypeError("'top_x_position_in_the_table' must be type 'int'")
+        if not isinstance(desired_number_of_scenarios, int):
+            raise TypeError("'desired_number_of_scenarios' must be type 'int'")
+        if desired_number_of_scenarios <= 0:
+            raise ValueError("'desired_number_of_scenarios' must be greater than 0")
+        if top_x_position_in_the_table <= 0:
+            raise ValueError("'top_x_position_in_the_table' must be greater than 0")
+        if team_name not in self.current_points_table["team"].values:
+            raise ValueError(f"'{team_name}' is not found in the current points table or in the given schedule")
+        if top_x_position_in_the_table > len(self.current_points_table):
+            raise ValueError(
+                "'top_x_position_in_the_table' must be less than or equal to the number of teams in the table"
             )
