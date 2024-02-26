@@ -1,13 +1,11 @@
 name: quality_check
 
 on:
-    pull_request:
-        branches:
-            - '*'
-            - '!main'
     push:
         branches:
             - main
+    pull_request:
+        types: [opened, synchronize]
 
 jobs:
     quality_checks:
