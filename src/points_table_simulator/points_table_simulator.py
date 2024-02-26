@@ -1,7 +1,7 @@
 # pylint: disable = missing-module-docstring
 
-from typing import List, Tuple
 import itertools
+from typing import List, Tuple
 import pandas as pd
 
 
