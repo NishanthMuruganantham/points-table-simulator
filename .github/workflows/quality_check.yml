@@ -1,9 +1,13 @@
-name: create_venv
+name: quality_check
 
 on:
-    push:
+    pull_request:
         branches:
             - '*'
+            - '!main'
+    push:
+        branches:
+            - main
 
 jobs:
     quality_checks:
