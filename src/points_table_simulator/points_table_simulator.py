@@ -187,24 +187,58 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
     def simulate_the_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int = 3
     ) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
+        """
+        Finds qualification scenarios for a specified team to reach the desired position in the points table.
+
+        This function simulates various match result scenarios for the remaining matches in the tournament schedule
+        to determine the combinations that would enable the specified team to qualify within the top X positions
+        in the points table.
+
+        Args:
+            team (str): The name of the team for which qualification scenarios are being determined.
+            top_x_position (int): The desired position in the points table for qualification.
+            desired_number_of_scenarios (int): The desired number of qualifying scenarios to find.
+
+        Returns:
+            Tuple[List[pd.DataFrame], List[pd.DataFrame]]: A tuple containing two lists:
+                - List[pd.DataFrame]: List of points tables for qualification scenarios.
+                - List[pd.DataFrame]: List of remaining_match_outcome for qualification scenarios.
+
+        The function iterates through all possible combinations of match results for the remaining matches
+        in the tournament schedule. For each combination, it calculates the updated points table and checks
+        if the specified team qualifies within the top X positions. Once enough qualifying scenarios are found
+        based on the desired number of scenarios, the function stops iterating and returns the results.
+
+        Example:
+            qualification_tables, qualification_match_results = find_qualification_scenarios(
+                team="Team A",
+                top_x_position=4,
+                desired_number_of_scenarios=5
+            )
+            for i in range(len(qualification_tables)):
+                print(f"Qualification Scenario {i+1}:")
+                print(qualification_tables[i])
+                print("Match Results:")
+                print(qualification_match_results[i])
+                print("\n")
+        """
 
         list_of_points_tables_for_qualification_scenarios = []
         list_of_remaining_match_result_for_qualification_scenarios = []
 
         remaining_matches_in_the_schedule = self._find_remaining_matches_in_the_schedule()
-        match_number_of_the_first_remaining_match = len(self.tournament_schedule) - len(remaining_matches_in_the_schedule) + 1
-        list_of_possible_results_for_remaining_matches = list(itertools.product(*remaining_matches_in_the_schedule))
 
         initial_points_table = self.current_points_table
 
-        for possible_results_for_remaining_matches in list_of_possible_results_for_remaining_matches:
+        for possible_results_for_remaining_matches in itertools.product(*remaining_matches_in_the_schedule):
             temporary_schedule_df = self.tournament_schedule.copy()
             updated_points_table = initial_points_table.copy()
 
             for match_number, possible_winning_team in enumerate(possible_results_for_remaining_matches):
                 home_team, away_team = remaining_matches_in_the_schedule[match_number]
                 temporary_schedule_df.loc[
-                    match_number_of_the_first_remaining_match + match_number - 1, self.tournament_schedule_winning_team_column_name
+                    len(self.tournament_schedule) - len(remaining_matches_in_the_schedule) + match_number,
+                    self.tournament_schedule_winning_team_column_name
                 ] = possible_winning_team
                 updated_points_table = self._update_points_table(
                     updated_points_table, home_team, away_team, possible_winning_team
@@ -222,7 +256,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
         return list_of_points_tables_for_qualification_scenarios, list_of_remaining_match_result_for_qualification_scenarios
 
-    def _find_remaining_matches_in_the_schedule(self) -> List[Tuple[str]]:
+    def _find_remaining_matches_in_the_schedule(self) -> List[Tuple[str, str]]:
         remaining_matches_df = self.tournament_schedule[
             self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") == ""
         ]
