@@ -12,7 +12,7 @@ min-public-methods=1
 
 [tool.pytest.ini_options]
 python_classes="*Tests"
-python_files=["*Tests.py"]
+python_files=["*Tests.py", "*tests.py"]
 pythonpath = [
     "src"
 ]
