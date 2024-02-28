@@ -27,3 +27,11 @@ class NoQualifyingScenariosError(Exception):
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.message}"
+
+
+class TournamentCompletionBelowCutoffError(Exception):
+    """Exception raised when the percentage of tournament completion is below the specified cutoff."""
+
+    def __init__(self, message="Percentage of tournament completion is below the specified cutoff."):
+        self.message = message
+        super().__init__(self.message)
