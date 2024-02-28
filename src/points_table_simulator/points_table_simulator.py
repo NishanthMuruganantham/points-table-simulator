@@ -3,9 +3,13 @@
 import itertools
 from typing import List, Tuple
 import pandas as pd
+from points_table_simulator.constants import (
+    TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE
+)
 from points_table_simulator.exceptions import (
     InvalidScheduleDataError,
-    NoQualifyingScenariosError
+    NoQualifyingScenariosError,
+    TournamentCompletionBelowCutoffError
 )
 
 
@@ -277,6 +281,14 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             lambda row: (row[self.tournament_schedule_home_team_column_name], row[self.tournament_schedule_away_team_column_name]),
             axis=1
         ))
+        total_matches_in_the_schedule = len(self.tournament_schedule)
+        completed_matches = total_matches_in_the_schedule - len(remaining_matches)
+        tournament_completion_percentage = (completed_matches / total_matches_in_the_schedule) * 100
+        if tournament_completion_percentage < TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE:
+            raise TournamentCompletionBelowCutoffError(
+                f"This utility cannot be used at this stage, since the tournament completion percentage is {tournament_completion_percentage:.2f}%, \
+                    which is below the cutoff percentage of {TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE}%."
+            )
         return remaining_matches
 
     def _update_points_table(
