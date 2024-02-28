@@ -3,7 +3,10 @@
 import itertools
 from typing import List, Tuple
 import pandas as pd
-from points_table_simulator.exceptions import NoQualifyingScenariosError
+from points_table_simulator.exceptions import (
+    InvalidScheduleDataError,
+    NoQualifyingScenariosError
+)
 
 
 class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
@@ -43,7 +46,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
     Methods:
         current_points_table(): Calculates the current points table based on the provided tournament schedule.
-
+        simulate_the_qualification_scenarios(): Finds qualification scenarios for a specified team to reach the desired position in the points table.
     """
 
     def __init__(       # pylint: disable = too-many-arguments
@@ -93,6 +96,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         self.tournament_schedule_match_number_column_name: str = tournament_schedule_match_number_column_name
         self.tournament_schedule_winning_team_column_name: str = tournament_schedule_winning_team_column_name
         self._validate_schedule_dataframe_columns()
+        self._validate_schedule_dataframe_data()
 
     @property
     def current_points_table(self) -> pd.DataFrame:
@@ -352,6 +356,17 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                 f"tournament_schedule_winning_team_column_name '{self.tournament_schedule_winning_team_column_name}' \
                     is not found in tournament_schedule columns"
             )
+
+    def _validate_schedule_dataframe_data(self):
+        for column in (
+            self.tournament_schedule_away_team_column_name,
+            self.tournament_schedule_home_team_column_name,
+            self.tournament_schedule_match_number_column_name,
+        ):
+            if bool(self.tournament_schedule[column].isnull().any()):
+                raise InvalidScheduleDataError(
+                    f"the given schedule contains rows with empty values or NaN in the {column} column"
+                )
 
     def _validate_the_inputs_for_simulate_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int
