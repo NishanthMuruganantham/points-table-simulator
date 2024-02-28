@@ -3,7 +3,10 @@
 import itertools
 from typing import List, Tuple
 import pandas as pd
-from points_table_simulator.exceptions import InvalidScheduleDataError, NoQualifyingScenariosError
+from points_table_simulator.exceptions import (
+    InvalidScheduleDataError,
+    NoQualifyingScenariosError
+)
 
 
 class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
