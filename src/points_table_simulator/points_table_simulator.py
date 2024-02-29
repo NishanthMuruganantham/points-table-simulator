@@ -1,14 +1,16 @@
 # pylint: disable = missing-module-docstring
 
 import itertools
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 import pandas as pd
 from points_table_simulator.constants import (
     TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE
 )
 from points_table_simulator.exceptions import (
+    InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,
+    TeamNotFoundError,
     TournamentCompletionBelowCutoffError
 )
 
@@ -328,17 +330,19 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         Raises:
             TypeError: If any of the input arguments have incorrect types.
         """
-        if not isinstance(tournament_schedule, pd.DataFrame):
-            raise TypeError("tournament_schedule must be a pandas DataFrame")
-        if not isinstance(points_for_a_win, int):
-            raise TypeError("points_for_a_win must be an integer")
-        if not isinstance(points_for_a_no_result, int):
-            raise TypeError("points_for_a_no_result must be an integer")
-        if not isinstance(points_for_a_draw, int):
-            raise TypeError("points_for_a_draw must be an integer")
+        type_map = {
+            "tournament_schedule": (tournament_schedule, pd.DataFrame),
+            "points_for_a_win": (points_for_a_win, int),
+            "points_for_a_no_result": (points_for_a_no_result, int),
+            "points_for_a_draw": (points_for_a_draw, int),
+        }
+
+        for arg_name, (arg_value, expected_type) in type_map.items():
+            if not isinstance(arg_value, expected_type):
+                raise TypeError(f"'{arg_name}' must be a '{expected_type}'")
         for key, value in kwargs.items():
             if not isinstance(value, str):
-                raise TypeError(f"{key} must be a string")
+                raise TypeError(f"'{key}' must be a '{str}'")
 
     def _validate_schedule_dataframe_columns(self):
         """
@@ -347,27 +351,16 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         Raises:
             ValueError: If any provided column name is missing from the columns of tournament_schedule dataframe.
         """
+        _column_map: Dict[str, str] = {
+            "tournament_schedule_away_team_column_name": self.tournament_schedule_away_team_column_name,
+            "tournament_schedule_home_team_column_name": self.tournament_schedule_home_team_column_name,
+            "tournament_schedule_match_number_column_name": self.tournament_schedule_match_number_column_name,
+            "tournament_schedule_winning_team_column_name": self.tournament_schedule_winning_team_column_name,
+        }
         schedule_dataframe_columns = self.tournament_schedule.columns
-        if self.tournament_schedule_away_team_column_name not in schedule_dataframe_columns:
-            raise ValueError(
-                f"tournament_schedule_away_team_column_name '{self.tournament_schedule_away_team_column_name}' \
-                    is not found in tournament_schedule columns"
-            )
-        if self.tournament_schedule_home_team_column_name not in schedule_dataframe_columns:
-            raise ValueError(
-                f"tournament_schedule_home_team_column_name '{self.tournament_schedule_home_team_column_name}' \
-                    is not found in tournament_schedule columns"
-            )
-        if self.tournament_schedule_match_number_column_name not in schedule_dataframe_columns:
-            raise ValueError(
-                f"tournament_schedule_match_number_column_name '{self.tournament_schedule_match_number_column_name}' \
-                    is not found in tournament_schedule columns"
-            )
-        if self.tournament_schedule_winning_team_column_name not in schedule_dataframe_columns:
-            raise ValueError(
-                f"tournament_schedule_winning_team_column_name '{self.tournament_schedule_winning_team_column_name}' \
-                    is not found in tournament_schedule columns"
-            )
+        for column_name, column_value in _column_map.items():
+            if column_value not in schedule_dataframe_columns:
+                raise InvalidColumnNamesError(f"{column_name} '{column_value}' is not found in given tournament_schedule columns")
 
     def _validate_schedule_dataframe_data(self):
         for column in (
@@ -383,18 +376,20 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
     def _validate_the_inputs_for_simulate_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int
     ):
-        if not isinstance(team_name, str):
-            raise TypeError("'team_name' must be type 'str'")
-        if not isinstance(top_x_position_in_the_table, int):
-            raise TypeError("'top_x_position_in_the_table' must be type 'int'")
-        if not isinstance(desired_number_of_scenarios, int):
-            raise TypeError("'desired_number_of_scenarios' must be type 'int'")
+        _type_map: Dict[str, type] = {
+            "team_name": str,
+            "top_x_position_in_the_table": int,
+            "desired_number_of_scenarios": int,
+        }
+        for key, value in _type_map.items():
+            if not isinstance(locals()[key], value):
+                raise TypeError(f"'{key}' must be a '{value}'")
         if desired_number_of_scenarios <= 0:
             raise ValueError("'desired_number_of_scenarios' must be greater than 0")
         if top_x_position_in_the_table <= 0:
             raise ValueError("'top_x_position_in_the_table' must be greater than 0")
         if team_name not in self.current_points_table["team"].values:
-            raise ValueError(f"'{team_name}' is not found in the current points table or in the given schedule")
+            raise TeamNotFoundError(f"'{team_name}' is not found in the current points table or in the given schedule")
         if top_x_position_in_the_table > len(self.current_points_table):
             raise ValueError(
                 "'top_x_position_in_the_table' must be less than or equal to the number of teams in the table"
