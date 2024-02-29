@@ -4,7 +4,9 @@ Custom Exceptions Module
 This module defines custom exception classes used in the project.
 
 Classes:
+    InvalidScheduleDataError: Exception raised when the input schedule dataframe is invalid.
     NoQualifyingScenariosError: Exception raised when no qualifying scenarios are found for the given team.
+    TournamentCompletionBelowCutoffError: Exception raised when the percentage of tournament completion is below the specified cutoff.
 """
 
 class InvalidScheduleDataError(ValueError):
@@ -14,9 +16,6 @@ class InvalidScheduleDataError(ValueError):
         self.message = message
         super().__init__(self.message)
 
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.message}"
-
 
 class NoQualifyingScenariosError(Exception):
     """Exception raised when no qualifying scenarios are found for the given team."""
@@ -24,9 +23,6 @@ class NoQualifyingScenariosError(Exception):
     def __init__(self, message="No qualifying scenarios found"):
         self.message = message
         super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.__class__.__name__}: {self.message}"
 
 
 class TournamentCompletionBelowCutoffError(Exception):
