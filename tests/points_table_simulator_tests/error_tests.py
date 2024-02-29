@@ -111,7 +111,7 @@ class ErrorTests(TestCase):
         self.assertEqual(str(exception.exception), expected_error_message)
 
     def test_WHEN_wrong_team_is_given_for_simulate_qualification_scenario_function_THEN_raise_TeamNotFoundError(self):
-        wrong_team = "Team E"
+        wrong_team = "Team Z"
         tournament_schedule = pd.DataFrame({
             "match_number": list(range(1, 7)),
             "home": ["Team A", "Team B", "Team C", "Team A", "Team B", "Team C"],
