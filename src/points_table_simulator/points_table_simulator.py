@@ -1,4 +1,56 @@
-# pylint: disable = missing-module-docstring
+"""
+points_table_simulator
+
+A package for calculating points tables for tournaments based on provided schedules and points systems and simulating the various qualification 
+    scenario for a given team in the course of the tournament.
+
+This package provides a PointsTableSimulator class that allows users to simulate and calculate points tables for tournaments. 
+    The class enables users to input tournament schedules, points awarded for different match outcomes (wins, draws, and no results), 
+    and then provides methods to calculate the current points table and simulate qualification scenarios for teams.
+
+Example:
+    To use this package, you can instantiate the PointsTableSimulator class with the tournament schedule and points system details:
+
+    ```python
+    from points_table_simulator import PointsTableSimulator
+    import pandas as pd
+
+    # Load the tournament schedule DataFrame
+    tournament_schedule = pd.read_csv("tournament_schedule.csv")
+
+    # Note: The tournament schedule DataFrame should have the following columns:
+    #   - "match_number" column containing the match number
+    #   - "home" column containing the home team names
+    #   - "away" column containing the away team names
+    #   - "winner" column containing the match result (winning_team_name, draw, or no result)
+    # If the tournament schedule DataFrame contains different names than this, you can use arguments in PointsTableSimulator class to
+    # specify the column names. 
+
+
+    # Instantiate the PointsTableSimulator object
+    simulator = PointsTableSimulator(
+        tournament_schedule=tournament_schedule,
+        points_for_a_win=3,
+        points_for_a_no_result=1,
+        points_for_a_draw=1
+    )
+
+    # Calculate the current points table
+    current_table = simulator.current_points_table()
+
+    # Simulate qualification scenarios for a specific team
+    qualification_tables, qualification_match_results = simulator.simulate_the_qualification_scenarios(
+        team_name="Team A",
+        top_x_position_in_the_table=4,
+        desired_number_of_scenarios=5
+    )
+    ```
+
+Author:
+    Nishanth Muruganantham
+    email: nishanthmurugananth10@gmail.com
+
+"""
 
 import itertools
 from typing import Dict, List, Tuple
