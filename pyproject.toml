@@ -16,6 +16,7 @@ disable = [
     "C0103"
 ]
 max-line-length=160
+max-locals=20
 min-public-methods=1
 
 [tool.pytest.ini_options]
