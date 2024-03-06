@@ -293,17 +293,21 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         list_of_remaining_match_result_for_qualification_scenarios = []
 
         remaining_matches_in_the_schedule = self._find_remaining_matches_in_the_schedule()
+        number_of_completed_matches: int = len(self.tournament_schedule) - len(remaining_matches_in_the_schedule)
+        remaining_schedule_df: pd.DataFrame = self.tournament_schedule.iloc[
+            number_of_completed_matches:, :
+        ]
 
         initial_points_table = self.current_points_table
 
         for possible_results_for_remaining_matches in itertools.product(*remaining_matches_in_the_schedule):
-            temporary_schedule_df = self.tournament_schedule.copy()
+            temporary_schedule_df = remaining_schedule_df.copy()
             updated_points_table = initial_points_table.copy()
 
             for match_number, possible_winning_team in enumerate(possible_results_for_remaining_matches):
                 home_team, away_team = remaining_matches_in_the_schedule[match_number]
                 temporary_schedule_df.loc[
-                    len(self.tournament_schedule) - len(remaining_matches_in_the_schedule) + match_number,
+                    number_of_completed_matches + match_number,
                     self.tournament_schedule_winning_team_column_name
                 ] = possible_winning_team
                 updated_points_table = self._update_points_table(
