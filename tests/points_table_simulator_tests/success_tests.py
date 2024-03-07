@@ -1,7 +1,6 @@
-from unittest import TestCase
-from typing import List
-import pandas as pd
 import os
+from unittest import TestCase
+import pandas as pd
 from points_table_simulator.points_table_simulator import PointsTableSimulator
 
 
