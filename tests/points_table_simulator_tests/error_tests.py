@@ -1,13 +1,13 @@
 from unittest import TestCase
 import pandas as pd
-from points_table_simulator.exceptions import (
+from points_table_simulator import (
     InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,
     TeamNotFoundError,
     TournamentCompletionBelowCutoffError
 )
-from points_table_simulator.points_table_simulator import PointsTableSimulator
+from points_table_simulator import PointsTableSimulator
 
 
 class ErrorTests(TestCase):

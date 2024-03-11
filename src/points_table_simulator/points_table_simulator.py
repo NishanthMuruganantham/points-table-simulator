@@ -55,15 +55,15 @@ Author:
 import itertools
 from typing import Dict, List, Tuple
 import pandas as pd
-from points_table_simulator.constants import (
-    TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE
-)
-from points_table_simulator.exceptions import (
+from points_table_simulator import (
     InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,
     TeamNotFoundError,
     TournamentCompletionBelowCutoffError
+)
+from points_table_simulator.constants import (
+    TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE
 )
 
 
