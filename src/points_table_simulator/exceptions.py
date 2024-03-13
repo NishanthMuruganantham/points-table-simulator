@@ -17,9 +17,10 @@ class InvalidColumnNamesError(ValueError):
     Custom error class for invalid column names in the tournament schedule DataFrame.
     """
 
-    def __init__(self, column_name):
+    def __init__(self, column_name: str, column_value: str):
         self.column_name = column_name
-        super().__init__(f"{column_name} is not found in tournament_schedule columns")
+        self.column_value = column_value
+        super().__init__(f"{column_name} '{column_value}' is not found in given tournament_schedule columns")
 
 
 class InvalidScheduleDataError(ValueError):

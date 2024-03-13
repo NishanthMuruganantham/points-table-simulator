@@ -416,7 +416,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         schedule_dataframe_columns = self.tournament_schedule.columns
         for column_name, column_value in _column_map.items():
             if column_value not in schedule_dataframe_columns:
-                raise InvalidColumnNamesError(f"{column_name} '{column_value}' is not found in given tournament_schedule columns")
+                raise InvalidColumnNamesError(column_name, column_value)
 
     def _validate_schedule_dataframe_data(self):
         for column in (
