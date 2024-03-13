@@ -157,6 +157,18 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         self._validate_schedule_dataframe_data()
 
     @property
+    def available_teams_in_fixture(self) -> set[str]:
+        """
+        Returns a set of available teams in the tournament schedule.
+
+        Returns:
+            set: Set of available teams in the tournament schedule.
+        """
+        return set(self.tournament_schedule[self.tournament_schedule_away_team_column_name].unique()).union(
+            set(self.tournament_schedule[self.tournament_schedule_home_team_column_name].unique())
+        )
+
+    @property
     def current_points_table(self) -> pd.DataFrame:
         """
         Calculates the current points table based on the provided tournament schedule.
@@ -175,11 +187,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
         team_points_data: List = []
 
-        teams: set = set(self.tournament_schedule[self.tournament_schedule_away_team_column_name].unique()).union(
-            set(self.tournament_schedule[self.tournament_schedule_home_team_column_name].unique())
-        )
-
-        for team in teams:
+        for team in self.available_teams_in_fixture:
             matches_played: int = len(self.tournament_schedule[
                 (
                     (self.tournament_schedule[self.tournament_schedule_away_team_column_name] == team) |
@@ -444,7 +452,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             raise ValueError("'desired_number_of_scenarios' must be greater than 0")
         if top_x_position_in_the_table <= 0:
             raise ValueError("'top_x_position_in_the_table' must be greater than 0")
-        if team_name not in self.current_points_table["team"].values:
+        if team_name not in self.available_teams_in_fixture:
             raise TeamNotFoundError(f"'{team_name}' is not found in the current points table or in the given schedule")
         if top_x_position_in_the_table > len(self.current_points_table):
             raise ValueError(
