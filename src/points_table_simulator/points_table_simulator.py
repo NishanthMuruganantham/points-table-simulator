@@ -333,9 +333,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                 break
 
         if not list_of_points_tables_for_qualification_scenarios:
-            raise NoQualifyingScenariosError(
-                f"No qualifying scenarios found for the team '{team_name}' in the top '{top_x_position_in_the_table}' positions."
-            )
+            raise NoQualifyingScenariosError(top_x_position_in_the_table, team_name)
 
         return list_of_points_tables_for_qualification_scenarios, list_of_remaining_match_result_for_qualification_scenarios
 

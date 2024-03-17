@@ -34,9 +34,10 @@ class InvalidScheduleDataError(ValueError):
 class NoQualifyingScenariosError(Exception):
     """Exception raised when no qualifying scenarios are found for the given team."""
 
-    def __init__(self, message="No qualifying scenarios found"):
-        self.message = message
-        super().__init__(self.message)
+    def __init__(self, points_table_position: int, team_name: str):
+        self.points_table_position = points_table_position
+        self.team_name = team_name
+        super().__init__(f"No qualifying scenarios found for team '{team_name}' at position {points_table_position}")
 
 
 class TeamNotFoundError(Exception):
