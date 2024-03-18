@@ -431,9 +431,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             self.tournament_schedule_match_number_column_name,
         ):
             if bool(self.tournament_schedule[column].isnull().any()):
-                raise InvalidScheduleDataError(
-                    f"the given schedule contains rows with empty values or NaN in the {column} column"
-                )
+                raise InvalidScheduleDataError(column)
 
     def _validate_the_inputs_for_simulate_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int

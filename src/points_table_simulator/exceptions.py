@@ -26,9 +26,9 @@ class InvalidColumnNamesError(ValueError):
 class InvalidScheduleDataError(ValueError):
     """Exception raised when the input schedule dataframe is invalid."""
 
-    def __init__(self, message="Invalid schedule data"):
-        self.message = message
-        super().__init__(self.message)
+    def __init__(self, column_name: str):
+        self.column_name = column_name
+        super().__init__(f"the given schedule contains rows with empty values or NaN in the {column_name} column")
 
 
 class NoQualifyingScenariosError(Exception):
