@@ -6,19 +6,21 @@ This tool🛠️ come as handy for those Sports enthusiasts which would help the
 
 <hr>
 
-This package📦 will simulate the points table📊 based on different possible results in a sports tournament.
+This python package📦 will simulate the points table📊 based on different possible results in a sports tournament.
 
 The PointsTableSimulator package provides a powerful tool for simulating and analyzing points tables for sports tournaments. Whether you're organizing or following a tournament, this package offers the flexibility to input tournament schedules, define points systems, and explore various match outcome scenarios to understand team standings and qualification possibilities.
 
 ## Installation
 
-Install my-project with npm
+Install this package with pip
 
 ```
 pip install points-table-simulator
 ```
     
 ## Usage/Examples
+
+Please find the example usage from the below python code
 
 ```python
 from points_table_simulator import PointsTableSimulator
@@ -59,3 +61,8 @@ points_tables, qualification_match_results = simulator.simulate_the_qualificatio
 # qualification_match_results - will return the list of table containing remaining match outcomes which could favour their team to get qualified for the given position
 ```
 
+>This package can also be used in Football tournaments such as English Premier League (EPL), Laliga, etc., when you want to generate the scenarios in which your favourite team can be placed in your expected position in the pointstable.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
