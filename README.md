@@ -47,8 +47,8 @@ simulator = PointsTableSimulator(
     points_for_a_draw=1
 )
 
-# Calculate the current points table
-current_table = simulator.current_points_table()
+# Get the current points table
+current_table = simulator.current_points_table      # current_points_table is an attribute of PointsTableSimulator class
 
 # Simulate qualification scenarios for a specific team
 points_tables, qualification_match_results = simulator.simulate_the_qualification_scenarios(
