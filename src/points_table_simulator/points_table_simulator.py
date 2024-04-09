@@ -255,6 +255,23 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
         return current_points_table
 
+    @property
+    def remaining_matches(self) -> List[Tuple[str, str]]:
+        """
+        Returns a list of tuples containing the remaining fixture matches in the tournament schedule.
+
+        Returns:
+            List[Tuple[str, str]]: List of tuples containing the remaining matches in the tournament schedule.
+        """
+        remaining_matches_df = self.tournament_schedule[
+            self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") == ""
+        ]
+        remaining_matches = list(remaining_matches_df.apply(
+            lambda row: (row[self.tournament_schedule_home_team_column_name], row[self.tournament_schedule_away_team_column_name]),
+            axis=1
+        ))
+        return remaining_matches
+
     def simulate_the_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int = 3
     ) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
@@ -300,20 +317,19 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         list_of_points_tables_for_qualification_scenarios = []
         list_of_remaining_match_result_for_qualification_scenarios = []
 
-        remaining_matches_in_the_schedule = self._find_remaining_matches_in_the_schedule()
-        number_of_completed_matches: int = len(self.tournament_schedule) - len(remaining_matches_in_the_schedule)
+        number_of_completed_matches: int = len(self.tournament_schedule) - len(self.remaining_matches)
         remaining_schedule_df: pd.DataFrame = self.tournament_schedule.iloc[
             number_of_completed_matches:, :
         ]
 
         initial_points_table = self.current_points_table
 
-        for possible_results_for_remaining_matches in itertools.product(*remaining_matches_in_the_schedule):
+        for possible_results_for_remaining_matches in itertools.product(*self.remaining_matches):
             temporary_schedule_df = remaining_schedule_df.copy()
             updated_points_table = initial_points_table.copy()
 
             for match_number, possible_winning_team in enumerate(possible_results_for_remaining_matches):
-                home_team, away_team = remaining_matches_in_the_schedule[match_number]
+                home_team, away_team = self.remaining_matches[match_number]
                 temporary_schedule_df.loc[
                     number_of_completed_matches + match_number,
                     self.tournament_schedule_winning_team_column_name
