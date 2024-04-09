@@ -272,6 +272,10 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         ))
         return remaining_matches
 
+    @property
+    def various_probable_outcomes_for_remaining_matches(self) -> itertools.product:
+        return itertools.product(*self.remaining_matches)
+
     def simulate_the_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int = 3
     ) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
@@ -324,11 +328,11 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
 
         initial_points_table = self.current_points_table
 
-        for possible_results_for_remaining_matches in itertools.product(*self.remaining_matches):
+        for tuple_of_remaining_match_results in self.various_probable_outcomes_for_remaining_matches:
             temporary_schedule_df = remaining_schedule_df.copy()
             updated_points_table = initial_points_table.copy()
 
-            for match_number, possible_winning_team in enumerate(possible_results_for_remaining_matches):
+            for match_number, possible_winning_team in enumerate(tuple_of_remaining_match_results):
                 home_team, away_team = self.remaining_matches[match_number]
                 temporary_schedule_df.loc[
                     number_of_completed_matches + match_number,
