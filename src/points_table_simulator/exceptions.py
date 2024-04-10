@@ -51,6 +51,7 @@ class TeamNotFoundError(Exception):
 class TournamentCompletionBelowCutoffError(Exception):
     """Exception raised when the percentage of tournament completion is below the specified cutoff."""
 
-    def __init__(self, message="Percentage of tournament completion is below the specified cutoff."):
-        self.message = message
-        super().__init__(self.message)
+    def __init__(self, cutoff_percentage: float, tournament_completion_percentage: float):
+        self.cutoff_percentage = cutoff_percentage
+        self.tournament_completion_percentage = tournament_completion_percentage
+        super().__init__(f"Tournament completion percentage is {tournament_completion_percentage}%, which is less than the specified cutoff of {self.cutoff_percentage}%")
