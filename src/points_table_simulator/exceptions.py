@@ -54,4 +54,6 @@ class TournamentCompletionBelowCutoffError(Exception):
     def __init__(self, cutoff_percentage: float, tournament_completion_percentage: float):
         self.cutoff_percentage = cutoff_percentage
         self.tournament_completion_percentage = tournament_completion_percentage
-        super().__init__(f"Tournament completion percentage is {tournament_completion_percentage}%, which is less than the specified cutoff of {self.cutoff_percentage}%")
+        super().__init__(
+            f"Tournament completion percentage is {tournament_completion_percentage}%, which is less than the specified cutoff of {self.cutoff_percentage}%"
+        )
