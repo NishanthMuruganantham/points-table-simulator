@@ -1,4 +1,4 @@
-from unittest import TestCase, skip
+from unittest import TestCase
 import pandas as pd
 from points_table_simulator import (
     InvalidColumnNamesError,
@@ -209,7 +209,6 @@ class ErrorTests(TestCase):
         with self.assertRaises(NoQualifyingScenariosError):
             simulator.simulate_the_qualification_scenarios("Team B", top_x_position_in_the_table=2)
 
-    @skip("enhancement in progress")
     def test_simulate_the_qualification_scenarios_function_with_completed_matches_below_cutoff_THEN_raise_TournamentCompletionBelowCutoffError(self):
         """
             This test checks that the PointsTableSimulator class raises a TournamentCompletionBelowCutoffError, when

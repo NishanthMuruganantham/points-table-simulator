@@ -318,6 +318,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         self._validate_the_inputs_for_simulate_qualification_scenarios(
             team_name, top_x_position_in_the_table, desired_number_of_scenarios
         )
+        self._check_for_minimal_tournament_completion()
         list_of_points_tables_for_qualification_scenarios = []
         list_of_remaining_match_result_for_qualification_scenarios = []
 
@@ -337,6 +338,19 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             raise NoQualifyingScenariosError(top_x_position_in_the_table, team_name)
 
         return list_of_points_tables_for_qualification_scenarios, list_of_remaining_match_result_for_qualification_scenarios
+
+    def _check_for_minimal_tournament_completion(self) -> None:
+        """
+        Checks if the percentage of tournament completion is below the specified cutoff.
+
+        Raises:
+            TournamentCompletionBelowCutoffError: Exception raised when the percentage of tournament completion is below the specified cutoff.
+        """
+        tournament_completion_percentage = (
+            (len(self.tournament_schedule) - len(self.remaining_matches)) / len(self.tournament_schedule)
+        ) * 100
+        if tournament_completion_percentage < TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE:
+            raise TournamentCompletionBelowCutoffError(TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE, round(tournament_completion_percentage, 2))
 
     def _check_the_given_scenario_for_favourable_outcome(
         self, team_name: str, top_x_position_in_the_table:int, tuple_of_remaining_match_results: Tuple[str]
@@ -380,24 +394,6 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             return updated_points_table, temporary_schedule_df
 
         return None
-
-    def _find_remaining_matches_in_the_schedule(self) -> List[Tuple[str, str]]:
-        remaining_matches_df = self.tournament_schedule[
-            self.tournament_schedule[self.tournament_schedule_winning_team_column_name].fillna("") == ""
-        ]
-        remaining_matches = list(remaining_matches_df.apply(
-            lambda row: (row[self.tournament_schedule_home_team_column_name], row[self.tournament_schedule_away_team_column_name]),
-            axis=1
-        ))
-        total_matches_in_the_schedule = len(self.tournament_schedule)
-        completed_matches = total_matches_in_the_schedule - len(remaining_matches)
-        tournament_completion_percentage = (completed_matches / total_matches_in_the_schedule) * 100
-        if tournament_completion_percentage < TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE:
-            raise TournamentCompletionBelowCutoffError(
-                f"This utility cannot be used at this stage, since the tournament completion percentage is {tournament_completion_percentage:.2f}%, \
-                    which is below the cutoff percentage of {TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE}%."
-            )
-        return remaining_matches
 
     def _update_points_table(
         self, points_table: pd.DataFrame, home_team: str, away_team: str, winning_team: str
