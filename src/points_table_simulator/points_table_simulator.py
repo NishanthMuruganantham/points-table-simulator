@@ -266,6 +266,10 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         return len(self.tournament_schedule) - len(self.remaining_matches)
 
     @property
+    def remaining_schedule_df(self) -> pd.DataFrame:
+        return self.tournament_schedule.iloc[self.number_of_completed_matches:, :]
+
+    @property
     def remaining_matches(self) -> List[Tuple[str, str]]:
         """
         Returns a list of tuples containing the remaining fixture matches in the tournament schedule.
@@ -378,12 +382,9 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                 - The updated points table for the given scenario.
                 - The remaining match outcome for the given scenario.
         """
-        remaining_schedule_df: pd.DataFrame = self.tournament_schedule.iloc[
-            self.number_of_completed_matches:, :
-        ]
         initial_points_table = self.current_points_table
 
-        temporary_schedule_df = remaining_schedule_df.copy()
+        temporary_schedule_df = self.remaining_schedule_df.copy()
         updated_points_table = initial_points_table.copy()
 
         for match_number, possible_winning_team in enumerate(tuple_of_remaining_match_results):
