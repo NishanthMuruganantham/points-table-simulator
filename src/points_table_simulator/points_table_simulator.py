@@ -335,10 +335,11 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         self._check_for_minimal_tournament_completion()
         list_of_points_tables_for_qualification_scenarios = []
         list_of_remaining_match_result_for_qualification_scenarios = []
+        current_points_dict: Dict[str, int] = self.current_points_table.set_index("team")["points"].to_dict()   # pylint: disable=unsubscriptable-object
 
-        for tuple_of_remaining_match_results in self.various_probable_outcomes_for_remaining_matches:
+        for remaining_matches_winning_teams in self.various_probable_outcomes_for_remaining_matches:
             _is_favourable_scenario = self._check_the_given_scenario_for_favourable_outcome(
-                team_name, top_x_position_in_the_table, tuple_of_remaining_match_results
+                current_points_dict.copy(), remaining_matches_winning_teams, team_name, top_x_position_in_the_table
             )
             if _is_favourable_scenario:
                 updated_points_table, temporary_schedule_df = _is_favourable_scenario
@@ -367,7 +368,7 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
             raise TournamentCompletionBelowCutoffError(TOURNAMENT_COMPLETION_CUTOFF_PERCENTAGE, round(tournament_completion_percentage, 2))
 
     def _check_the_given_scenario_for_favourable_outcome(
-        self, team_name: str, top_x_position_in_the_table:int, tuple_of_remaining_match_results: Tuple[str]
+        self, current_points_dict: Dict[str, int], remaining_matches_winning_teams: Tuple[str], team_name: str, top_x_position_in_the_table:int
     ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], None]:
         """
         Checks if the given scenario is favourable for the specified team.
@@ -382,26 +383,26 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                 - The updated points table for the given scenario.
                 - The remaining match outcome for the given scenario.
         """
-        initial_points_table = self.current_points_table
+        updated_points_dict = self._update_winning_team_points_dict(current_points_dict, remaining_matches_winning_teams)
+        top_x_positions_teams = list(updated_points_dict.keys())[:top_x_position_in_the_table]
 
-        temporary_schedule_df = self.remaining_schedule_df.copy()
-        updated_points_table = initial_points_table.copy()
+        if team_name in top_x_positions_teams:
+            remaining_outcome_df = self.remaining_schedule_df.copy()
+            udpated_points_table = self.current_points_table.copy()
 
-        for match_number, possible_winning_team in enumerate(tuple_of_remaining_match_results):
-            home_team, away_team = self.remaining_matches[match_number]
-            temporary_schedule_df.loc[
-                self.number_of_completed_matches + match_number,
-                self.tournament_schedule_winning_team_column_name
-            ] = possible_winning_team
-            updated_points_table = self._update_points_table(
-                updated_points_table, home_team, away_team, possible_winning_team
-            )
+            for match_number, possible_winning_team in enumerate(remaining_matches_winning_teams):
+                home_team, away_team = self.remaining_matches[match_number]
+                remaining_outcome_df.loc[
+                    self.number_of_completed_matches + match_number,
+                    self.tournament_schedule_winning_team_column_name
+                ] = possible_winning_team
+                udpated_points_table = self._update_points_table(
+                    udpated_points_table, home_team, away_team, possible_winning_team
+                )
+            udpated_points_table.sort_values(by="points", ascending=False, inplace=True)
+            udpated_points_table.reset_index(drop=True, inplace=True)
 
-        updated_points_table.sort_values(by="points", ascending=False, inplace=True)
-        updated_points_table.reset_index(drop=True, inplace=True)
-
-        if team_name in updated_points_table["team"].values[:top_x_position_in_the_table]:
-            return updated_points_table, temporary_schedule_df
+            return udpated_points_table, remaining_outcome_df
 
         return None
 
@@ -413,6 +414,22 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         points_table.loc[points_table['team'] == home_team, 'matches_played'] += 1
         points_table.loc[points_table['team'] == away_team, 'matches_played'] += 1
         return points_table
+
+    def _update_winning_team_points_dict(self, current_points_dict: Dict[str, int], remaining_matches_winning_teams: Tuple[str]) -> Dict[str, int]:
+        """
+        Updates the points dictionary for the winning teams in the remaining matches.
+
+        Args:
+            current_points_dict (Dict[str, int]): The current points dictionary.
+            remaining_matches_winning_teams (Tuple[str]): The winning teams in the remaining matches.
+
+        Returns:
+            Dict[str, int]: The updated points dictionary.
+        """
+        for team in remaining_matches_winning_teams:
+            current_points_dict[team] += self.points_for_a_win
+        updated_points_dict = dict(sorted(current_points_dict.items(), key=lambda item: item[1], reverse=True))
+        return updated_points_dict
 
     @staticmethod
     def _validate_input_types(
