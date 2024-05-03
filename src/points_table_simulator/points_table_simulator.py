@@ -396,8 +396,9 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
                     self.number_of_completed_matches + match_number,
                     self.tournament_schedule_winning_team_column_name
                 ] = possible_winning_team
+                losing_team = home_team if away_team == possible_winning_team else away_team
                 udpated_points_table = self._update_points_table(
-                    udpated_points_table, home_team, away_team, possible_winning_team
+                    losing_team, udpated_points_table, possible_winning_team
                 )
             udpated_points_table.sort_values(by="points", ascending=False, inplace=True)
             udpated_points_table.reset_index(drop=True, inplace=True)
@@ -407,12 +408,10 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         return None
 
     def _update_points_table(
-        self, points_table: pd.DataFrame, home_team: str, away_team: str, winning_team: str
+        self, losing_team: str, points_table: pd.DataFrame, winning_team: str
     ) -> pd.DataFrame:
-        points_table.loc[points_table["team"] == winning_team, "matches_won"] += 1
-        points_table.loc[points_table['team'] == winning_team, 'points'] += self.points_for_a_win
-        points_table.loc[points_table['team'] == home_team, 'matches_played'] += 1
-        points_table.loc[points_table['team'] == away_team, 'matches_played'] += 1
+        points_table.loc[points_table["team"] == losing_team, ["matches_lost", "matches_played"]] += [1, 1]
+        points_table.loc[points_table["team"] == winning_team, ["matches_played", "matches_won", "points"]] += [1, 1, self.points_for_a_win]
         return points_table
 
     def _update_winning_team_points_dict(self, current_points_dict: Dict[str, int], remaining_matches_winning_teams: Tuple[str]) -> Dict[str, int]:
