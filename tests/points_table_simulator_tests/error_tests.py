@@ -1,6 +1,7 @@
 from unittest import TestCase
 import pandas as pd
 from points_table_simulator import (
+    AllMatchesCompletedError,
     InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,
@@ -227,3 +228,19 @@ class ErrorTests(TestCase):
 
         with self.assertRaises(TournamentCompletionBelowCutoffError):
             simulator.simulate_the_qualification_scenarios("Team A", top_x_position_in_the_table=2)
+
+    def test_WHEN_all_the_matches_in_the_given_schedule_are_completed_THEN_raise_AllMatchesCompletedError(self):
+        """
+            This test checks that the PointsTableSimulator class raises a AllMatchesCompletedError, when all the matches
+            in the given schedule are completed.
+        """
+        tournament_schedule = pd.DataFrame({
+            "match_number": list(range(1, 7)),
+            "home": ["Team A", "Team B", "Team C", "Team A", "Team B", "Team C"],
+            "away": ["Team B", "Team C", "Team A", "Team C", "Team A", "Team B"],
+            "winner": ["Team A", "Team C", "Team A", "Team C", "Team A", "Team B"]
+        })
+        
+
+        with self.assertRaises(AllMatchesCompletedError):
+            PointsTableSimulator(tournament_schedule, points_for_a_win=3)
