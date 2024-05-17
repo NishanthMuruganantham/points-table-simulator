@@ -56,6 +56,7 @@ import itertools
 from typing import Dict, List, Tuple, Union
 import pandas as pd
 from points_table_simulator import (
+    AllMatchesCompletedError,
     InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,
@@ -498,6 +499,8 @@ class PointsTableSimulator:     # pylint: disable = too-many-instance-attributes
         ):
             if bool(self.tournament_schedule[column].isnull().any()):
                 raise InvalidScheduleDataError(column)
+        if not bool(self.tournament_schedule[self.tournament_schedule_winning_team_column_name].isnull().any()):
+            raise AllMatchesCompletedError
 
     def _validate_the_inputs_for_simulate_qualification_scenarios(
         self, team_name: str, top_x_position_in_the_table: int, desired_number_of_scenarios: int

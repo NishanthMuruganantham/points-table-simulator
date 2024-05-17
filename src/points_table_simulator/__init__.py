@@ -1,4 +1,5 @@
 from points_table_simulator.exceptions import (
+    AllMatchesCompletedError,
     InvalidColumnNamesError,
     InvalidScheduleDataError,
     NoQualifyingScenariosError,

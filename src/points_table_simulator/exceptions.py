@@ -11,6 +11,13 @@ Classes:
     TournamentCompletionBelowCutoffError: Exception raised when the percentage of tournament completion is below the specified cutoff.
 """
 
+class AllMatchesCompletedError(Exception):
+    """Exception raised when all matches are completed."""
+
+    def __init__(self, message="All matches are completed"):
+        self.message = message
+        super().__init__(self.message)
+
 
 class InvalidColumnNamesError(ValueError):
     """
